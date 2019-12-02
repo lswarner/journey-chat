@@ -5,6 +5,7 @@ import {
   Container
 } from 'semantic-ui-react'
 import Message from './Message'
+import ComposeMessage from './ComposeMessage'
 
 const people= {
   'luke': {name:'Luke Warner', avatar: 'https://randomuser.me/api/portraits/men/11.jpg'},
@@ -37,6 +38,7 @@ const Chat = (props) => {
   return (
     <>
       <Container vertical style={styles.wrapper}>
+        <h1 style={styles.title}>{props.channel} channel</h1>
         {messages.length === 0
           ? <p>This channel is empty</p>
           : messages.map((message, i)=>(
@@ -49,13 +51,16 @@ const Chat = (props) => {
             />
           ))}
 
-        <Button onClick={nextMessage} secondary>Post Message</Button>
+        <ComposeMessage />
       </Container>
     </>
   )
 }
 
 const styles= {
+  title: {
+    fontSize: '24px',
+  },
   wrapper: {
     marginTop: '60px',
     marginLeft: '10%',

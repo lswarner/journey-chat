@@ -4,6 +4,7 @@ import {
   Button,
   Container
 } from 'semantic-ui-react'
+
 import Message from './Message'
 import ComposeMessage from './ComposeMessage'
 
@@ -27,6 +28,13 @@ const data= [
 
 const Chat = (props) => {
   const [messages, setMessages]= React.useState([])
+
+  const handleChannelUpdates = (changes) => {
+    changes.forEach((change)=>{
+      console.log(`${change.type}: ${change.doc.data()}`)
+    })
+  }
+
 
   const nextMessage= () => {
     if(data.length === 0) return;

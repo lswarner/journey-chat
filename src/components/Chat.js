@@ -16,19 +16,9 @@ const people= {
   'jordan': {name:'Jordan Warner', avatar: 'https://randomuser.me/api/portraits/men/81.jpg'},
   'martin': {name: 'Martin'}
 }
-const data= [
-  {content: 'I am a message. Check me out.', color:'purple', author: 'luke'},
-  {content: 'I am another message that is a little bit longer.', color:'teal', author: 'christina'},
-  {content: 'Heres a message from someone else.', color:'purple', author: 'luke'},
-  {content: 'Hey', color:'red', author: 'jordan'},
-  {content: 'This is going to be a much longer message and it may have typos because it is from someone who types quickly and doesnt pay attention to what they are writing or use punctuation properly.', color:'teal', author: 'christina'},
-  {content: 'Huh, that is a longer one.', color:'red', author: 'jordan'},
-  {content: 'Woah...', color:'purple', author: 'luke'},
-  {content: '- Neo', color:'purple', author: 'luke'},
-]
 
 const Chat = ({channels}) => {
-  const [messages, dispatch] = React.useReducer(messagesReducer, []);
+  const [messages, dispatch] = React.useReducer(messagesReducer, {});
 
   React.useEffect(()=>{
     const subscribe = async (channel) => {
@@ -60,9 +50,9 @@ const Chat = ({channels}) => {
     <>
       <Container vertical style={styles.wrapper}>
         <h1 style={styles.title}>{channels.join(', ')} channel</h1>
-        {messages.length === 0
+        {messages === {}
           ? <p>This channel is empty</p>
-          : messages.map((message, i)=>(
+          : Object.values(messages).map((message, i)=>(
             <Message
               content={message.content}
               key={i}

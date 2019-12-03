@@ -5,8 +5,12 @@ export const messagesReducer = (state, action) => {
 
   switch(action.type){
     case 'added':
-      return state.concat(action.data)
-  
+      //return state.concat(action.data)
+      return {
+        ...state,
+        [action.data.timestamp]: action.data
+      }
+
     default:
       //throw new Error('Unexpected action type in messagesReducer: ', action.type)
       break

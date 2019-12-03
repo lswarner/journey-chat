@@ -10,8 +10,7 @@ export const subscribeToChannel = async (channel, listener) => {
   let unsubscribe= await firebase.firestore()
         .collection('messages')
         .where('channel', '==', channel)
-        .orderBy('timestamp')
-        .limit(25)
+        .orderBy('timestamp', 'desc')
         .onSnapshot((snapshot)=>{
           listener(snapshot.docChanges());
         },

@@ -11,6 +11,7 @@ export const subscribeToChannel = async (channel, listener) => {
         .collection('messages')
         .where('channel', '==', channel)
         .orderBy('timestamp')
+        .limit(25)
         .onSnapshot((snapshot)=>{
           listener(snapshot.docChanges());
         },

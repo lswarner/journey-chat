@@ -7,12 +7,14 @@ import {
 
 import Message from './Message'
 import ComposeMessage from './ComposeMessage'
+import {subscribeToChannel} from '../firebase'
+import {messagesReducer} from '../reducers'
 
 const people= {
   'luke': {name:'Luke Warner', avatar: 'https://randomuser.me/api/portraits/men/11.jpg'},
   'christina': {name:'Christina Vernon', avatar: 'https://randomuser.me/api/portraits/women/82.jpg'},
   'jordan': {name:'Jordan Warner', avatar: 'https://randomuser.me/api/portraits/men/81.jpg'},
-
+  'martin': {name: 'Martin'}
 }
 const data= [
   {content: 'I am a message. Check me out.', color:'purple', author: 'luke'},
@@ -23,39 +25,49 @@ const data= [
   {content: 'Huh, that is a longer one.', color:'red', author: 'jordan'},
   {content: 'Woah...', color:'purple', author: 'luke'},
   {content: '- Neo', color:'purple', author: 'luke'},
-
 ]
 
-const Chat = (props) => {
-  const [messages, setMessages]= React.useState([])
+const Chat = ({channels}) => {
+  const [messages, dispatch] = React.useReducer(messagesReducer, []);
 
-  const handleChannelUpdates = (changes) => {
-    changes.forEach((change)=>{
-      console.log(`${change.type}: ${change.doc.data()}`)
+  React.useEffect(()=>{
+    const subscribe = async (channel) => {
+      let unsub= await subscribeToChannel(channel, handleChannelChanges);
+      return unsub;
+    }
+
+    channels.forEach(channel=>{
+      subscribe(channel)
     })
-  }
 
+  }, [channels]);
 
-  const nextMessage= () => {
-    if(data.length === 0) return;
+  const handleChannelChanges = (changes) => {
+    changes.forEach(change=>{
 
-    const m= data.shift();
-    setMessages(messages.concat(m));
-  }
+        dispatch({
+          type: change.type,
+          data: {
+            id: change.doc.id,
+            ...change.doc.data()
+          }
+        })
+    })
+  };
+
 
   return (
     <>
       <Container vertical style={styles.wrapper}>
-        <h1 style={styles.title}>{props.channel} channel</h1>
+        <h1 style={styles.title}>{channels.join(', ')} channel</h1>
         {messages.length === 0
           ? <p>This channel is empty</p>
           : messages.map((message, i)=>(
             <Message
               content={message.content}
               key={i}
-              color={message.color}
+              color={message.channel === 'demo' ? 'green' : 'blue'}
               author={people[message.author].name}
-              avatar={people[message.author].avatar}
             />
           ))}
 

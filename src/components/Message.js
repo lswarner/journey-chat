@@ -31,13 +31,7 @@ const Message = ({content, color, author, avatar}) => (
     <>
       <Grid centered style={styles.container}>
         <Grid.Column width={2} style={{paddingRight:0}}>
-          <Image
-            src={avatar}
-            avatar
-            floated='right'
-            verticalAlign='bottom'
-            style={styles.avatar}
-          />
+          
         </Grid.Column>
         <Grid.Column width={14}>
           <span style={styles.authorText}>{author}</span>

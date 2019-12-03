@@ -9,7 +9,7 @@ function App() {
     <div className="app" style={styles.app}>
       <Header title='Journey.ai Chat' />
       <div className="container" style={styles.container}>
-        <Messages channel='demo'/>
+        <Chat channels={['demo', 'test']}/>
       </div>
     </div>
   );

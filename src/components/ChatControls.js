@@ -2,7 +2,8 @@ import React from 'react'
 import {
   Segment,
   Input,
-  Button
+  Button,
+  Icon
 } from 'semantic-ui-react'
 
 const ChatControls = (props) => {
@@ -23,14 +24,14 @@ const ChatControls = (props) => {
 
   return (
     <Segment>
-      <h2>Channels</h2>
-      <ul>
+      <h2>Active Channels</h2>
+      <ul style={{listStyle: 'none', paddingLeft: '0'}}>
         {Object.keys(props.channels).map(channel=>(
-          <li>{channel} <Button onClick={()=>handleLeave(channel)}>X</Button></li>
+          <li>{channel} <Icon link  name='close' onClick={()=>handleLeave(channel)} /></li>
         ))}
-
       </ul>
-      <p>Here is some text</p>
+
+      
       <Input
         placeholder='channel'
         onChange={handleInputChange}

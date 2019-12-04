@@ -2,7 +2,7 @@ import React from 'react'
 import {
   Segment,
   Image,
-  Grid
+  Grid,
 } from 'semantic-ui-react'
 import { displayTime, relativeTime } from '../utils'
 
@@ -36,7 +36,7 @@ const Message = ({content, color, author, avatar, timestamp}) => (
     <>
       <Grid centered style={styles.container}>
         <Grid.Column width={2} style={{paddingRight:0}}>
-
+          <Image avatar src={avatar} style={styles.avatar}/>
         </Grid.Column>
         <Grid.Column width={14}>
           <span style={styles.authorText}>{author}</span>

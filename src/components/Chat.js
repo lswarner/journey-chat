@@ -1,4 +1,5 @@
 import React from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   Container,
   Grid,
@@ -9,6 +10,7 @@ import {
   Ref
 } from 'semantic-ui-react'
 import {subscribeToChannel} from '../firebase'
+import {parseRoomsFromQueryString, randomColor} from '../utils'
 import {messagesReducer, channelsReducer, channelTypes} from '../reducers'
 import Messages from './Messages'
 import ComposeMessage from './ComposeMessage'
@@ -18,7 +20,12 @@ const peopleData= {
   'luke': {name:'Luke Warner', avatar: 'https://randomuser.me/api/portraits/men/11.jpg'},
   'christina': {name:'Christina Vernon', avatar: 'https://randomuser.me/api/portraits/women/82.jpg'},
   'jordan': {name:'Jordan Warner', avatar: 'https://randomuser.me/api/portraits/men/81.jpg'},
-  'martin': {name: 'Martin'}
+  'martin': {name: 'Martin'},
+  'link': {name: 'Link', avatar:'https://avatarfiles.alphacoders.com/103/thumb-103373.png'},
+  'zelda': {name: 'Zelda', avatar: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6203/6203028_sd.jpg'},
+  'samus': {name: 'Samus Aran', avatar: 'https://vignette.wikia.nocookie.net/nintendo/images/0/09/Super_Smash_Bros._Ultimate_-_Character_Art_-_Samus.png/revision/latest?cb=20190710193153&path-prefix=en'},
+  'pikachu': {name: 'Pikachu', avatar: 'https://giantbomb1.cbsistatic.com/uploads/scale_medium/0/6087/2437349-pikachu.png'},
+  'mario': {name: 'Mario', avatar: 'https://pm1.narvii.com/7257/6cdddc3631bf9749b9380f628dd338c7eb9b6dccr1-512-513v2_hq.jpg'}
 }
 
 const channelData= {
@@ -30,61 +37,48 @@ const channelData= {
 const Chat = (props) => {
   const [messages, dispatchMessages] = React.useReducer(messagesReducer, {});
   const [channels, dispatchChannels]= React.useReducer(channelsReducer, {});
-
-
+  let location = useLocation(); //the query string is in location.search
   const contextRef= React.useRef(null);
-  let unsubscribers= React.useRef({});
 
-  /*
-   * useEffect runs on initial render and when/if channels are changed.
-   * This will get pre-existing messages and start listening for new messages on each channel.
-   * Whenever a new message is posted to a channel, it calls handleChannelChanges
-   *    with the new message data.
-   */
-  /*
+
   React.useEffect(()=>{
-    //begin listening to each channel
-    channels.forEach(channel=>{
-      subscribeToChannel(channel)
-    })
 
-    //when the component unmounts, this function is called to clean up
-    //  by unsubscribing from all the firestore updates we listened to
-    return ()=> {
-      Object.values(unsubscribers).forEach((ch)=>{
-        ch.unsub()
-      });
+    const queryValues= parseRoomsFromQueryString(location.search);
+
+    if(queryValues.length === 0){
+      console.log('create a random chat room')
     }
 
-  }, [channels]);
-  */
+    try{
+      //request to subscribe to each channel.
+      queryValues.forEach((ch)=>{
+        joinChannel(ch);
+      })
+    }
+    catch(error){
+      console.error('An error occurred while attempting to subscribe to a channel.', error);
+    }
+
+  },[location])
 
 
-  const subscribeToChannel = async (channel) => {
+
+
+  const joinChannel = async (channel) => {
     try{
 
-      //let unsub= await subscribeToChannel(channel, handleChannelChanges);
+      let unsub= await subscribeToChannel(channel, handleChannelChanges);
 
-
-      //unsubscribers[channel]= { //store this unsubscribe callback- channel: {'unsub': unsubCallBack()}
-      //  unsub
-      //};
-
-
-      console.log('setting channel state with: ', channel)
-      console.log('previous channels', channels)
 
       dispatchChannels({
         type: channelTypes.subscribe,
         data: {
-          channel
+          channel,
+          unsub, //store the unsubscribe callback for when we leave this channel
+          color: randomColor()
         }
       });
 
-      //setChannels({
-      //  ...channels,
-      //  channel
-      //})
     }
     catch(error){
       console.error(`There was a problem subscribing to ${channel}: `, error)
@@ -92,10 +86,13 @@ const Chat = (props) => {
 
   }
 
-  const unsubscribeFromChannel = async (channel) => {
+  const leaveChannel = async (channel) => {
     try{
-      //await unsubscribers[channel].unsub();
 
+      //first, call the unsubscribe callback to stop listening
+      await channels[channel].unsub();
+
+      //then dispatch an action to remove the channel from our state
       dispatchChannels({
         type: channelTypes.unsubscribe,
         data: {
@@ -124,28 +121,18 @@ const Chat = (props) => {
             timestamp: messageData.timestamp,
             author: {
               id: messageData.author,
-              name: peopleData[messageData.author].name
+              name: peopleData[messageData.author].name,
+              avatar: peopleData[messageData.author].avatar,
             },
             channel: {
               id: messageData.channel,
-              color: channelData[messageData.channel].color
+              //color: channelData[messageData.channel].color
             }
           }
         })
     })
   };
 
-
-  const handleJoinChannel = (channel) =>{
-    console.log(`joining ${channel}`);
-    subscribeToChannel(channel);
-  }
-
-  const handleLeaveChannel = (channel) =>{
-    console.log(`leaving ${channel}`)
-
-    unsubscribeFromChannel(channel);
-  }
 
   const handleCreateChannel = () =>{
     console.log(`creating new channel`)
@@ -159,12 +146,13 @@ const Chat = (props) => {
 
           <Ref innerRef={contextRef}>
             <Container style={styles.wrapper}>
-              <h1 style={styles.title}>{Object.keys(channels).join(', ')} channel</h1>
+
 
               <Messages messages={messages} />
 
               <ComposeMessage
                 channels={channels}
+                people={peopleData}
               />
 
               <Rail position="left">
@@ -172,8 +160,8 @@ const Chat = (props) => {
 
                   <ChatControls
                     channels={channels}
-                    onJoinChannel={handleJoinChannel}
-                    onLeaveChannel={handleLeaveChannel}
+                    onJoinChannel={joinChannel}
+                    onLeaveChannel={leaveChannel}
                     onCreateChannel={handleCreateChannel}
                   />
 

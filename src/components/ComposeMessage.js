@@ -21,7 +21,6 @@ const channelData= [
   }
 ];
 
-
 const peopleData= [
   {
     key: 'luke',
@@ -36,9 +35,20 @@ const peopleData= [
 ]
 
 const ComposeMessage = (props) => {
+  const [channels, setChannels]= React.useState(Object.values(props.channels));
   const [text, setText]= React.useState('');
-  const [curChannel, setCurChannel]= React.useState(props.channels[0])
-  const [curPerson, setCurPerson]= React.useState('luke')
+  const [curChannel, setCurChannel]= React.useState(null);
+  const [curPerson, setCurPerson]= React.useState('luke');
+
+  React.useEffect(()=>{
+    let ch= Object.values(props.channels)
+    setChannels(ch);
+
+    if(ch.length){
+      setCurChannel(ch[0].value)
+    }
+
+  }, [props.channels])
 
   const handleTextChange = (event) => {
     event.preventDefault();
@@ -72,6 +82,7 @@ const ComposeMessage = (props) => {
   return (
     <Menu fixed='bottom' >
       <div style={styles.container}>
+
         <Form style={{width: '600px'}}>
           <TextArea
             rows={2}
@@ -83,8 +94,20 @@ const ComposeMessage = (props) => {
               <div style={styles.channelSelector}>posting to:{' '}
                 <Dropdown
                   inline
-                  options={channelData}
-                  defaultValue={channelData[0].value}
+                  options={channels.reduce(
+                    (optionData, {channel})=>{
+                      let data= {key: channel, text: channel, value: channel};
+                      if(!optionData){
+                        return [data];
+                      }
+                      else{
+                        return optionData.concat(data)
+                      }
+
+                    }, [])
+                  }
+                  defaultValue={channels.length ? channels[0].channel : ''}
+                  value={curChannel}
                   onChange={handleChannelChange}
                 />
               </div>
@@ -92,7 +115,19 @@ const ComposeMessage = (props) => {
               <div style={styles.channelSelector}>writing as:{' '}
                 <Dropdown
                   inline
-                  options={peopleData}
+                  options={Object.keys(props.people).reduce(
+                    (optionData, p)=>{
+                      let person= props.people[p];
+                      let data= {key: p, text: person.name, value: p,  image: { avatar: true, src: `${person.avatar}` } };
+                      if(!optionData){
+                        return [data];
+                      }
+                      else{
+                        return optionData.concat(data)
+                      }
+
+                    }, [])
+                  }
                   defaultValue={peopleData[0].value}
                   onChange={handlePeopleChange}
                 />
@@ -138,4 +173,4 @@ const styles= {
 
 }
 
-export default React.memo(ComposeMessage)
+export default ComposeMessage

@@ -32,7 +32,7 @@ export const channelsReducer = (state, action) => {
     case channelTypes.subscribe:
       return {
         ...state,
-        [action.data.channel]: action.data.channel
+        [action.data.channel]: action.data
       }
 
 

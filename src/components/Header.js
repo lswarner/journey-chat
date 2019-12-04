@@ -8,7 +8,7 @@ const Header = (props) => (
   <div>
     <Menu fixed='top' inverted>
       <Container>
-        <Menu.Item as='a' header onClick={()=>console.log('home')}>
+        <Menu.Item as='a' header>
           {props.title}
         </Menu.Item>
       </Container>

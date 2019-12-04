@@ -1,9 +1,12 @@
 import React from 'react'
 import Message from './Message'
 
-
+/**
+ * Component to display each message in a channel
+ * @param {[ object ]} props.messages The messages to be shown
+ */
 const Messages = ({messages}) => {
-  const afterMessagesRef= React.useRef(null)
+  const afterMessagesRef= React.useRef(null);
 
   const scrollToBottom = () => {
     afterMessagesRef.current.scrollIntoView({behavior: "smooth"})
@@ -30,6 +33,8 @@ const Messages = ({messages}) => {
             />
           ))}
       </div>
+
+      {/* this dummy div helps us scroll to the end of the messages */}
       <div style={{float: "left", clear: "both", height:'140px'}} ref={afterMessagesRef}>
       </div>
     </div>
@@ -37,10 +42,4 @@ const Messages = ({messages}) => {
 
 }
 
-const styles= {
-  messagesContainer: {
-    height: '80vh'
-  }
-}
-
-export default Messages;
+export default React.memo(Messages);

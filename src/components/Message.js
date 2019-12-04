@@ -4,7 +4,41 @@ import {
   Image,
   Grid,
 } from 'semantic-ui-react'
-import { displayTime, relativeTime } from '../utils'
+import { displayTime } from '../utils'
+
+
+/**
+ * Component to display a single message
+ * 
+ * @param {string} props.content   [description]
+ * @param {string} props.color     [description]
+ * @param {string} props.channel   [description]
+ * @param {string} props.author    [description]
+ * @param {string} props.avatar    [description]
+ * @param {Number} props.timestamp [description]
+ */
+const Message = ({content, color, channel, author, avatar, timestamp}) => (
+    <>
+      <Grid centered style={styles.container}>
+        <Grid.Column width={2} style={{paddingRight:0}}>
+          <Image avatar src={avatar} style={styles.avatar}/>
+        </Grid.Column>
+        <Grid.Column width={14}>
+          <span style={styles.authorText}>{author}</span>
+          <span style={styles.timeText}> [{displayTime(timestamp)}]</span>
+          <span style={styles.channelText}>#{channel}</span>
+          <Segment
+            color={color}
+            raised
+            style={styles.messageContent}
+          >
+            {content}
+          </Segment>
+        </Grid.Column>
+      </Grid>
+
+    </>
+)
 
 const styles={
   container: {
@@ -35,27 +69,4 @@ const styles={
   }
 }
 
-
-const Message = ({content, color, channel, author, avatar, timestamp}) => (
-    <>
-      <Grid centered style={styles.container}>
-        <Grid.Column width={2} style={{paddingRight:0}}>
-          <Image avatar src={avatar} style={styles.avatar}/>
-        </Grid.Column>
-        <Grid.Column width={14}>
-          <span style={styles.authorText}>{author}</span>
-          <span style={styles.timeText}> [{displayTime(timestamp)}]</span>
-          <span style={styles.channelText}>#{channel}</span>
-          <Segment
-            color={color}
-            raised
-            style={styles.messageContent}
-          >
-            {content}
-          </Segment>
-        </Grid.Column>
-      </Grid>
-
-    </>
-)
 export default React.memo(Message)

@@ -4,8 +4,6 @@ import {
   Container,
   Grid,
   Rail,
-  Segment,
-  Button,
   Sticky,
   Ref
 } from 'semantic-ui-react'
@@ -15,15 +13,7 @@ import {messagesReducer, channelsReducer, channelTypes} from '../reducers'
 import Messages from './Messages'
 import ComposeMessage from './ComposeMessage'
 import ChatControls from './ChatControls'
-
-const peopleData= {
-  'link': {name: 'Link', avatar:'https://avatarfiles.alphacoders.com/103/thumb-103373.png'},
-  'zelda': {name: 'Zelda', avatar: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6203/6203028_sd.jpg'},
-  'samus': {name: 'Samus Aran', avatar: 'https://vignette.wikia.nocookie.net/nintendo/images/0/09/Super_Smash_Bros._Ultimate_-_Character_Art_-_Samus.png/revision/latest?cb=20190710193153&path-prefix=en'},
-  'pikachu': {name: 'Pikachu', avatar: 'https://giantbomb1.cbsistatic.com/uploads/scale_medium/0/6087/2437349-pikachu.png'},
-  'mario': {name: 'Mario', avatar: 'https://pm1.narvii.com/7257/6cdddc3631bf9749b9380f628dd338c7eb9b6dccr1-512-513v2_hq.jpg'}
-}
-
+import {peopleData} from '../utils'
 
 
 const Chat = (props) => {
@@ -33,14 +23,20 @@ const Chat = (props) => {
   const contextRef= React.useRef(null);
 
 
+  /*
+   * On initial render, process the query string parameters and start listening
+   *   to the requested channels.
+   *
+   * useEffect on runs when 'location' changes - ie, the  query string changes in the browser window.
+   */
   React.useEffect(()=>{
-
     const queryValues= parseRoomsFromQueryString(location.search);
 
     if(queryValues.length === 0){
       console.log('create a random chat room')
     }
 
+    //Try to begin listening to each channel
     try{
       //request to subscribe to each channel.
       queryValues.forEach((ch)=>{
@@ -55,13 +51,19 @@ const Chat = (props) => {
 
 
 
-
+/**
+ * Call the API to subscribe to realtime data updates whenever a new message is posted
+ *   to this channel.
+ * @param  {string}  channel the id of the channel to join
+ * @return {Promise}         [description]
+ */
   const joinChannel = async (channel) => {
     try{
 
+      // notify firestore that we want to listen
       let unsub= await subscribeToChannel(channel, handleChannelChanges);
 
-
+      //dispatch an action to store this channel in local state
       dispatchChannels({
         type: channelTypes.subscribe,
         data: {
@@ -78,9 +80,13 @@ const Chat = (props) => {
 
   }
 
+/**
+ * Call the API to unsubscribe from this channel
+ * @param  {string}  channel
+ * @return {Promise}
+ */
   const leaveChannel = async (channel) => {
     try{
-
       //first, call the unsubscribe callback to stop listening
       await channels[channel].unsub();
 
@@ -97,17 +103,21 @@ const Chat = (props) => {
     }
   }
 
-  /*
-   * handleChannelChanges is the callback which received new messages
-   *    and dispatches an action to update our local state with useReducer.
+  /**
+   * The callback provided to Firestore which is used to receive new messages.
+   *    Each message dispatches an action to update our local state with useReducer.
+   * @param { [Firestore.DocumentChanges] } changes An array containing all the changes made to the query we are subscribed to
+   *                                                For the initial callback, these changes include every document
    */
   const handleChannelChanges = (changes) => {
-    console.log('receiving messages to channels', channels)
+
+    // There may be more than one change included in this notification,
+    // so we dispatch an action for each to make sure all are processed correctly.
     changes.forEach(change=>{
-        let messageData= change.doc.data();
 
-        console.log(' <<< ', messageData);
+      let messageData= change.doc.data(); //guaranteed to exist, even if data is {}
 
+      try{
         dispatchMessages({
           type: change.type, //pass along the Firestore action type
           data: {
@@ -125,6 +135,10 @@ const Chat = (props) => {
             }
           }
         })
+      }
+      catch(error){
+        console.error(`There was an error dispatching message ${change.type} for document ${change.doc.id}.`)
+      }
     })
   };
 

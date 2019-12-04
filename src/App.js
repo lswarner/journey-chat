@@ -3,7 +3,6 @@ import {
   BrowserRouter as Router,
   Route,
   Switch,
-  useParams
 } from 'react-router-dom'
 import 'semantic-ui-css/semantic.min.css';
 import Header from './components/Header'

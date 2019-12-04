@@ -8,38 +8,24 @@ import {
 } from 'semantic-ui-react'
 import { postToChannel } from '../firebase'
 
-const channelData= [
-  {
-    key: 'demo',
-    text: 'demo',
-    value: 'demo'
-  },
-  {
-    key: 'football',
-    text: 'football',
-    value: 'football',
-  }
-];
 
-const peopleData= [
-  {
-    key: 'luke',
-    text: 'luke',
-    value: 'luke'
-  },
-  {
-    key: 'christina',
-    text: 'christina',
-    value: 'christina',
-  }
-]
-
+/**
+ * Write a new message to a channel we are subscribed to.
+ * Provides functionality for user to choose an identity to post as
+ *  and choose which channel to post the message to, if subscribed to more than one.
+ * @param {[object]} props.channels Array of channels the user is subscribed to
+ */
 const ComposeMessage = (props) => {
   const [channels, setChannels]= React.useState(Object.values(props.channels));
   const [text, setText]= React.useState('');
   const [curChannel, setCurChannel]= React.useState(null);
   const [curPerson, setCurPerson]= React.useState('luke');
 
+/*
+  Re-shape the channels prop and load into local state to ease dropdown and messaging options.
+  useEffect is called on initial render and and time the channels change.
+  The channels state is managed in Chat.js and is passed here as a prop.
+ */
   React.useEffect(()=>{
     let ch= Object.values(props.channels)
     setChannels(ch);
@@ -50,22 +36,32 @@ const ComposeMessage = (props) => {
 
   }, [props.channels])
 
+  //keep message textarea in sync with state.
   const handleTextChange = (event) => {
     event.preventDefault();
     const { value } = event.target;
     setText(value);
   }
 
+  //keep track when user choose to post to a different channel
   const handleChannelChange = (event, data) => {
     event.preventDefault();
     setCurChannel(data.value)
   }
 
+  //keep track when user chooses to change identity
   const handlePeopleChange = (event, data) => {
     event.preventDefault();
     setCurPerson(data.value)
   }
 
+/**
+ * Send a request to Firestore to post a new message to a channel.
+ *  Because we are subscribed to this channel, Firestore will immediately
+ *  notify us of the new message, call our listener, and the data will be then
+ *  processed, reduced, and stored (see Chat.handleChannelChanges() in Chat.js )
+ * @return
+ */
   const submitNewMessage = async () => {
     if(text === '') return;
 
@@ -76,7 +72,6 @@ const ComposeMessage = (props) => {
     catch(error){
       console.error(`Error posting message to channel #${curChannel}`, error);
     }
-
   }
 
   return (
@@ -91,6 +86,8 @@ const ComposeMessage = (props) => {
           />
           <div>
             <div style={styles.dropdowns}>
+
+              {/* Generate channel dropdown */}
               <div style={styles.channelSelector}>posting to:{' '}
                 <Dropdown
                   inline
@@ -112,6 +109,7 @@ const ComposeMessage = (props) => {
                 />
               </div>
 
+              {/* Generate poster identity dropdown */}
               <div style={styles.channelSelector}>writing as:{' '}
                 <Dropdown
                   inline
@@ -125,10 +123,8 @@ const ComposeMessage = (props) => {
                       else{
                         return optionData.concat(data)
                       }
-
                     }, [])
                   }
-                  defaultValue={peopleData[0].value}
                   onChange={handlePeopleChange}
                 />
               </div>

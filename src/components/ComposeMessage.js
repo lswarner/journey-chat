@@ -94,9 +94,9 @@ const ComposeMessage = (props) => {
               <div style={styles.channelSelector}>posting to:{' '}
                 <Dropdown
                   inline
-                  options={channels.reduce(
-                    (optionData, {channel})=>{
-                      let data= {key: channel, text: channel, value: channel};
+                  options={Object.values(props.channels).reduce(
+                    (optionData, {channel, color})=>{
+                      let data= {key: channel, text: channel, value: channel, color: color};
                       if(!optionData){
                         return [data];
                       }

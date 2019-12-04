@@ -16,13 +16,17 @@ const styles={
     height: '48px',
   },
   authorText: {
+    color: '#333',
+    fontSize: '16px'
+  },
+  channelText: {
     color: '#9d9d9d',
-    fontSize: '12px'
+    fontSize: '12px',
+    float: 'right'
   },
   timeText :{
     color: '#a7a7a7',
     fontSize: '12px',
-    float: 'right'
   },
   messageContent: {
     marginTop: 0,
@@ -32,7 +36,7 @@ const styles={
 }
 
 
-const Message = ({content, color, author, avatar, timestamp}) => (
+const Message = ({content, color, channel, author, avatar, timestamp}) => (
     <>
       <Grid centered style={styles.container}>
         <Grid.Column width={2} style={{paddingRight:0}}>
@@ -40,7 +44,8 @@ const Message = ({content, color, author, avatar, timestamp}) => (
         </Grid.Column>
         <Grid.Column width={14}>
           <span style={styles.authorText}>{author}</span>
-          <span style={styles.timeText}>{displayTime(timestamp)}</span>
+          <span style={styles.timeText}> [{displayTime(timestamp)}]</span>
+          <span style={styles.channelText}>#{channel}</span>
           <Segment
             color={color}
             raised

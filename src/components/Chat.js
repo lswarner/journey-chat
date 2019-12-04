@@ -17,10 +17,6 @@ import ComposeMessage from './ComposeMessage'
 import ChatControls from './ChatControls'
 
 const peopleData= {
-  'luke': {name:'Luke Warner', avatar: 'https://randomuser.me/api/portraits/men/11.jpg'},
-  'christina': {name:'Christina Vernon', avatar: 'https://randomuser.me/api/portraits/women/82.jpg'},
-  'jordan': {name:'Jordan Warner', avatar: 'https://randomuser.me/api/portraits/men/81.jpg'},
-  'martin': {name: 'Martin'},
   'link': {name: 'Link', avatar:'https://avatarfiles.alphacoders.com/103/thumb-103373.png'},
   'zelda': {name: 'Zelda', avatar: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6203/6203028_sd.jpg'},
   'samus': {name: 'Samus Aran', avatar: 'https://vignette.wikia.nocookie.net/nintendo/images/0/09/Super_Smash_Bros._Ultimate_-_Character_Art_-_Samus.png/revision/latest?cb=20190710193153&path-prefix=en'},
@@ -28,11 +24,7 @@ const peopleData= {
   'mario': {name: 'Mario', avatar: 'https://pm1.narvii.com/7257/6cdddc3631bf9749b9380f628dd338c7eb9b6dccr1-512-513v2_hq.jpg'}
 }
 
-const channelData= {
-  'demo': {color: 'green'},
-  'test': {color: 'red'},
-  'football' : {color: 'blue'},
-};
+
 
 const Chat = (props) => {
   const [messages, dispatchMessages] = React.useReducer(messagesReducer, {});
@@ -110,8 +102,11 @@ const Chat = (props) => {
    *    and dispatches an action to update our local state with useReducer.
    */
   const handleChannelChanges = (changes) => {
+    console.log('receiving messages to channels', channels)
     changes.forEach(change=>{
         let messageData= change.doc.data();
+
+        console.log(' <<< ', messageData);
 
         dispatchMessages({
           type: change.type, //pass along the Firestore action type
@@ -126,7 +121,7 @@ const Chat = (props) => {
             },
             channel: {
               id: messageData.channel,
-              //color: channelData[messageData.channel].color
+              color: channels[messageData.channel] ? channels[messageData.channel].color : 'black'
             }
           }
         })

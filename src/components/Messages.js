@@ -22,8 +22,9 @@ const Messages = ({messages}) => {
             <Message
               content={message.content}
               key={message.id}
+              channel={message.channel.id}
               avatar={message.author.avatar}
-              //color={message.channel.color}
+              color={message.channel.color}
               author={message.author.name}
               timestamp={message.timestamp}
             />

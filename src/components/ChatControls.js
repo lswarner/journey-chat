@@ -27,11 +27,11 @@ const ChatControls = (props) => {
       <h2>Active Channels</h2>
       <ul style={{listStyle: 'none', paddingLeft: '0'}}>
         {Object.keys(props.channels).map(channel=>(
-          <li>{channel} <Icon link  name='close' onClick={()=>handleLeave(channel)} /></li>
+          <li>#{channel} <Icon link  name='close' onClick={()=>handleLeave(channel)} /></li>
         ))}
       </ul>
 
-      
+
       <Input
         placeholder='channel'
         onChange={handleInputChange}

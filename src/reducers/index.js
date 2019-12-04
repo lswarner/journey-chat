@@ -8,10 +8,9 @@ const types= {
 
 
 export const messagesReducer = (state, action) => {
-  
+
   switch(action.type){
     case types.added:
-      //return state.concat(action.data)
       return {
         ...state,
         [action.data.timestamp]: action.data

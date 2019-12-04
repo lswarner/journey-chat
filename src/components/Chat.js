@@ -1,12 +1,10 @@
 import React from 'react'
 import {
-  Segment,
-  Button,
   Container
 } from 'semantic-ui-react'
 import {subscribeToChannel} from '../firebase'
 import {messagesReducer} from '../reducers'
-import Message from './Message'
+import Messages from './Messages'
 import ComposeMessage from './ComposeMessage'
 
 const peopleData= {
@@ -18,7 +16,8 @@ const peopleData= {
 
 const channelData= {
   'demo': {color: 'green'},
-  'test': {color: 'red'}
+  'test': {color: 'red'},
+  'football' : {color: 'blue'},
 };
 
 const Chat = ({channels}) => {
@@ -58,35 +57,44 @@ const Chat = ({channels}) => {
    */
   const handleChannelChanges = (changes) => {
     changes.forEach(change=>{
+        let messageData= change.doc.data();
 
         dispatch({
           type: change.type, //pass along the Firestore action type
           data: {
             id: change.doc.id,   //include the message's id...
-            ...change.doc.data() //... and the rest of the message data.
+            content: messageData.content, //... and the rest of the message data
+            timestamp: messageData.timestamp,
+            author: {
+              id: messageData.author,
+              name: peopleData[messageData.author].name
+            },
+            channel: {
+              id: messageData.channel,
+              color: channelData[messageData.channel].color
+            }
           }
         })
     })
   };
 
 
+
+
   return (
     <>
+
       <Container style={styles.wrapper}>
         <h1 style={styles.title}>{channels.join(', ')} channel</h1>
-        {messages === {}
-          ? <p>This channel is empty</p>
-          : Object.values(messages).map((message, i)=>(
-            <Message
-              content={message.content}
-              key={i}
-              color={channelData[message.channel].color}
-              author={peopleData[message.author].name}
-            />
-          ))}
 
-        <ComposeMessage />
+        <Messages messages={messages} />
+
+        <ComposeMessage
+          channels={channels}
+        />
+
       </Container>
+
     </>
   )
 }
@@ -100,7 +108,7 @@ const styles= {
     marginLeft: '10%',
     marginRight: '30%',
 
-    width: '800px'
+    width: '600px',
   }
 }
 export default React.memo(Chat);

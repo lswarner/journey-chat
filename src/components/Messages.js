@@ -1,60 +1,44 @@
 import React from 'react'
-import {subscribeToChannel} from '../firebase'
+import Message from './Message'
 
 
-const Messages = ({channel}) => {
-  let [channelMessages, setMessages]= React.useState([]);
+const Messages = ({messages}) => {
+  const afterMessagesRef= React.useRef(null)
 
-  React.useEffect(()=>{
-
-    (()=>{
-      console.log('_____ subscribing...')
-      let unsubscribe= subscribeToChannel(channel, handleChannelChanges);
-      return unsubscribe;
-    })()
-  }, []);
-
-
-  const handleChannelChanges = (changes) => {
-    console.log(`_____ handling ${changes.length} changes`)
-    console.log('messages: ', channelMessages);
-    console.log(' . . . ');
-
-    let addedMessages= [];
-
-    changes.forEach((change)=>{
-      const msg= change.doc.data();
-      console.log(msg);
-      //const timestamp= Math.floor(new Date.now() / 1000);
-
-      switch(change.type){
-        case "added":
-          addedMessages.push(msg)
-          break;
-
-        default:
-        console.log('a different change type: ', change.type);
-          break;
-      };
-    });
-
-
-    console.log('added msg:', addedMessages)
-    setMessages(channelMessages.concat(addedMessages));
+  const scrollToBottom = () => {
+    afterMessagesRef.current.scrollIntoView({behavior: "smooth"})
   }
 
+  React.useEffect(()=>{
+    scrollToBottom()
+  }, [messages])
+
   return (
-    <>
-      <ul style={{marginTop: '60px'}}>
-        { channelMessages.map((msg)=>(
-          <li>{`${msg.author}: ${msg.content}`}</li>
-        ))
-        }
-      </ul>
-      </>
+    <div >
+      <div>
+        {messages === {}
+          ? <p>This channel is empty</p>
+          : Object.values(messages).map((message)=>(
+            <Message
+              content={message.content}
+              key={message.id}
+              color={message.channel.color}
+              author={message.author.name}
+              timestamp={message.timestamp}
+            />
+          ))}
+      </div>
+      <div style={{float: "left", clear: "both", height:'140px'}} ref={afterMessagesRef}>
+      </div>
+    </div>
   )
 
+}
 
+const styles= {
+  messagesContainer: {
+    height: '80vh'
+  }
 }
 
 export default Messages;

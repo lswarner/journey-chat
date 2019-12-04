@@ -2,15 +2,15 @@ import React from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import Header from './components/Header'
 import Chat from './components/Chat'
-import Messages from './components/AllMessages'
 
 function App() {
   return (
     <div className="app" style={styles.app}>
       <Header title='Journey.ai Chat' />
       <div className="container" style={styles.container}>
-        <Chat channels={['demo', 'test']}/>
+        <Chat channels={['football']}/>
       </div>
+
     </div>
   );
 }

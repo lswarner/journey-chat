@@ -23,6 +23,28 @@ export const subscribeToChannel = async (channel, listener) => {
 
 
 
+export const postToChannel = async (channel, author, message) => {
+
+  try{
+    let newDoc= await firebase.firestore().collection('messages').add({
+        channel,
+        author,
+        content: message,
+        timestamp: currentTimestamp(new Date()) // unix timestamp in seconds
+      })
+
+    return newDoc;
+  }
+  catch(error){
+    throw error;
+  }
+
+
+}
+
+
+
+
 export const subscribeCollection = async (collectionRef, setCollectionCallback) => {
 
   let unsubscribe= await firebase.firestore()
@@ -47,4 +69,8 @@ export const subscribeCollection = async (collectionRef, setCollectionCallback) 
 
   return unsubscribe;
 
+}
+
+const currentTimestamp = () => {
+  return Math.floor(new Date().getTime() / 1000)
 }
